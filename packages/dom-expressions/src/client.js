@@ -36,9 +36,16 @@ export function render(code, element, init) {
   };
 }
 
+let policy;
+if (window.trustedTypes) {
+  policy = window.trustedTypes.createPolicy("solid-dom-expressions", {
+    createHTML: s => s
+  });
+}
+
 export function template(html, check, isSVG) {
   const t = document.createElement("template");
-  t.innerHTML = html;
+  t.innerHTML = policy ? policy.createHTML(html) : html;
   if ("_DX_DEV_" && check && t.innerHTML.split("<").length - 1 !== check)
     throw `The browser resolved template HTML does not match JSX input:\n${t.innerHTML}\n\n${html}. Is your HTML properly formed?`;
   let node = t.content.firstChild;
